@@ -11,23 +11,31 @@
  * @link        http://hallmark-design.co.uk    
  */
 
-/**
- * include dependencies
- */
+// include dependencies
 require_once PATH_THIRD.'taxonomy/models/taxonomy_model.php';
 
-if ( ! class_exists('Playa_ft') )
+// Zenbu support: try to load Zenbu's playa fieldtype extension, if it exists.
+// This will give us nicely formatted links in the Zenbu table, just like a native Playa ft
+if (class_exists('Zenbu_playa_ft')) 
 {
-    require_once PATH_THIRD.'playa/ft.playa.php';
+    class Dynamic_playa_ft extends Zenbu_playa_ft {}
+} 
+else 
+{
+    if ( ! class_exists('Playa_ft') )
+    {
+        require_once PATH_THIRD.'playa/ft.playa.php';
+    }
+    class Dynamic_playa_ft extends Playa_ft {}
 }
 
-class Tax_playa_ft extends Playa_ft {
+class Tax_playa_ft extends Dynamic_playa_ft {
 
     public $tax, $EE;
 
     public $info = array(
         'name'      => 'Tax Playa',
-        'version'   => '1.0.0'
+        'version'   => '1.0.1'
     );
 
     protected static $init = TRUE;
@@ -43,6 +51,8 @@ class Tax_playa_ft extends Playa_ft {
     
         $this->tax = new Taxonomy_model();
         $this->site_id = $this->EE->config->item('site_id');
+
+        $this->playa = "tax_playa";
     }
 
     /**
@@ -211,7 +221,7 @@ class Tax_playa_ft extends Playa_ft {
         if ($this->settings['field_required'] == 'y')
         {
             // make sure there are selections
-            if (! isset($data['selections']) || ! array_filter($data['selections']))
+            if ( ! isset($data['selections']) || is_array($data['selections']) && ! array_filter($data['selections']))
             {
                 return lang('required');
             }
@@ -449,11 +459,12 @@ class Tax_playa_ft extends Playa_ft {
         if (self::$init)
         {   
             $theme_url = $this->_theme_url();
+
             $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="'.$theme_url.'css/jquery.checkboxtree.css">');
-            $this->EE->cp->add_to_head('<script type="text/javascript" src="'.$theme_url.'javascript/jquery-ui.min.js"></script>');                 
-            $this->EE->cp->add_to_head('<script type="text/javascript" src="'.$theme_url.'javascript/jquery.checkboxtree.js"></script>');
+            $this->EE->cp->add_to_head('<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>');
+            $this->EE->cp->add_to_foot('<script type="text/javascript" src="'.$theme_url.'javascript/jquery.checkboxtree.js"></script>');
             
-            $this->EE->cp->add_to_head('
+            $this->EE->cp->add_to_foot('
             <script type="text/javascript">
             $(document).ready(function() {
 
@@ -498,7 +509,6 @@ class Tax_playa_ft extends Playa_ft {
         $last_node_depth = 0;
         $last = "";
         $html = "<ul>";
-        $include_ul = "no";
 
         foreach($taxonomy_data as $tree)
         {
@@ -544,15 +554,9 @@ class Tax_playa_ft extends Playa_ft {
 
                 $last_node_depth = $node['depth'];
             }
-            
-            if ($ul_open)
-            {
-                $html .= str_repeat("</ul>\n", $last_node_depth);
-                $ul_open = false;
-                $last_node_depth--;
-            }
         }
         
+        $html .= "</ul>";
         $html = '<div class="checkboxTree">'.$html.'</div>';
         
         return $html;
