@@ -35,7 +35,7 @@ class Tax_playa_ft extends Dynamic_playa_ft {
 
     public $info = array(
         'name'      => 'Tax Playa',
-        'version'   => '1.0.1'
+        'version'   => '1.0.2'
     );
 
     protected static $init = TRUE;
@@ -198,7 +198,7 @@ class Tax_playa_ft extends Dynamic_playa_ft {
      */
     public function display_global_settings()
     {
-        $this->EE->cp->add_to_head('
+        $this->EE->cp->add_to_foot('
             <script type="text/javascript">
             $(document).ready(function() {
                 $(\'.pageContents input\').attr("value", "OK");
@@ -461,7 +461,7 @@ class Tax_playa_ft extends Dynamic_playa_ft {
             $theme_url = $this->_theme_url();
 
             $this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="'.$theme_url.'css/jquery.checkboxtree.css">');
-            $this->EE->cp->add_to_head('<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>');
+            $this->EE->cp->add_to_foot('<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>');
             $this->EE->cp->add_to_foot('<script type="text/javascript" src="'.$theme_url.'javascript/jquery.checkboxtree.js"></script>');
             
             $this->EE->cp->add_to_foot('
